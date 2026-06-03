@@ -1,10 +1,11 @@
 import { hasSupabaseConfig, supabase } from './supabase'
-import type { Resource, Platform } from '../types'
+import type { Resource, Platform, GlossaryEntry } from '../types'
 
 const useMock = !hasSupabaseConfig
 
 const STORAGE_KEY_R = 'study-tracker-resources'
 const STORAGE_KEY_P = 'study-tracker-platforms'
+const STORAGE_KEY_G = 'study-tracker-glossary'
 
 function loadFromStorage<T>(key: string): T[] {
   if (!useMock) return []
@@ -24,6 +25,7 @@ function saveToStorage(key: string, data: unknown) {
 
 let localResources: Resource[] = loadFromStorage(STORAGE_KEY_R)
 let localPlatforms: Platform[] = loadFromStorage(STORAGE_KEY_P)
+let localGlossary: GlossaryEntry[] = loadFromStorage(STORAGE_KEY_G)
 
 function genId() {
   return crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2, 11)
@@ -113,4 +115,44 @@ export async function deletePlatform(id: string) {
     return
   }
   await getSupabase().from('platforms').delete().eq('id', id)
+}
+
+export async function fetchGlossary(): Promise<GlossaryEntry[]> {
+  if (useMock) return [...localGlossary]
+  const { data } = await getSupabase().from('glossary').select('*').order('term', { ascending: true })
+  return (data as GlossaryEntry[]) || []
+}
+
+export async function addTerm(entry: Omit<GlossaryEntry, 'id' | 'created_at'>) {
+  if (useMock) {
+    const newEntry: GlossaryEntry = {
+      ...entry,
+      id: genId(),
+      created_at: new Date().toISOString(),
+    }
+    localGlossary = [...localGlossary, newEntry]
+    saveToStorage(STORAGE_KEY_G, localGlossary)
+    return newEntry
+  }
+  const { data } = await getSupabase().from('glossary').insert(entry).select().single()
+  return data as GlossaryEntry | null
+}
+
+export async function updateTerm(id: string, updates: Partial<GlossaryEntry>) {
+  if (useMock) {
+    localGlossary = localGlossary.map((e) => (e.id === id ? { ...e, ...updates } : e))
+    saveToStorage(STORAGE_KEY_G, localGlossary)
+    return localGlossary.find((e) => e.id === id) || null
+  }
+  const { data } = await getSupabase().from('glossary').update(updates).eq('id', id).select().single()
+  return data as GlossaryEntry | null
+}
+
+export async function deleteTerm(id: string) {
+  if (useMock) {
+    localGlossary = localGlossary.filter((e) => e.id !== id)
+    saveToStorage(STORAGE_KEY_G, localGlossary)
+    return
+  }
+  await getSupabase().from('glossary').delete().eq('id', id)
 }

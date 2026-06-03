@@ -9,6 +9,7 @@ interface NavbarProps {
 
 const navItems = [
   { path: '/', label: 'Acervo', icon: '🎓' },
+  { path: '/glossary', label: 'Glossário', icon: '📖' },
   { path: '/platforms', label: 'Plataformas', icon: '🔧' },
   { path: '/completed', label: 'Completo', icon: '✅' },
   { path: '/progress', label: 'Progresso', icon: '📈' },

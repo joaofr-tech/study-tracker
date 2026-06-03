@@ -38,3 +38,12 @@ export interface Platform {
   url: string
   description: string
 }
+
+export interface GlossaryEntry {
+  id: string
+  term: string
+  definition: string
+  areas: Area[]
+  pinned: boolean
+  created_at: string
+}
