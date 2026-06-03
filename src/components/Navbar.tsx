@@ -8,10 +8,10 @@ interface NavbarProps {
 }
 
 const navItems = [
-  { path: '/', label: 'Library', icon: '📚' },
-  { path: '/platforms', label: 'Platforms', icon: '🔧' },
-  { path: '/completed', label: 'Completed', icon: '✅' },
-  { path: '/progress', label: 'Progress', icon: '📈' },
+  { path: '/', label: 'Acervo', icon: '🎓' },
+  { path: '/platforms', label: 'Plataformas', icon: '🔧' },
+  { path: '/completed', label: 'Completo', icon: '✅' },
+  { path: '/progress', label: 'Progresso', icon: '📈' },
 ]
 
 export default function Navbar({ dark, toggleTheme }: NavbarProps) {

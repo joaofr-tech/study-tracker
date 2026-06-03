@@ -30,9 +30,9 @@ export default function Platforms() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold">🔧 Platforms</h1>
+          <h1 className="text-3xl font-bold">🔧 Plataformas</h1>
           <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-            Plataformas de estudo como Kaggle, Hugging Face, etc.
+            Plataformas de estudo como Kaggle, Hugging Face, entre outras
           </p>
         </div>
         <button

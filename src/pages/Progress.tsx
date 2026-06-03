@@ -79,16 +79,16 @@ export default function Progress() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold">Skill Tree</h1>
+        <h1 className="text-3xl font-bold">📈 Progresso</h1>
         <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-          Recursos concluidos categorizados por tags, skills e titulo
+          Recursos concluídos categorizados por tags, skills e título
         </p>
       </div>
 
       <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-6 bg-white dark:bg-gray-900">
         {completed.length === 0 ? (
           <div className="text-center py-20 text-gray-500 text-sm">
-            Conclua recursos para formar sua Skill Tree.
+            Conclua recursos para formar seu mapa de habilidades.
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={420}>

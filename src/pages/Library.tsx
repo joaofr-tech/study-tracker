@@ -48,7 +48,7 @@ export default function Library() {
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold">📚 Library</h1>
+          <h1 className="text-3xl font-bold">🎓 Acervo</h1>
           <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
             {pendingCount} pendentes • {completedCount} concluídos
           </p>
