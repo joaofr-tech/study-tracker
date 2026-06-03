@@ -1,19 +1,26 @@
 import { useState } from 'react'
+import { AREAS, AREA_COLORS, type Area } from '../types'
 
 interface AddResourceModalProps {
   open: boolean
   onClose: () => void
-  onAdd: (data: { name: string; url: string | null; image_url: string | null; tags: string[]; skills: string[] }) => void
+  onAdd: (data: { name: string; url: string | null; image_url: string | null; areas: Area[]; skills: string[] }) => void
 }
 
 export default function AddResourceModal({ open, onClose, onAdd }: AddResourceModalProps) {
   const [name, setName] = useState('')
   const [url, setUrl] = useState('')
   const [imageUrl, setImageUrl] = useState('')
-  const [tagsInput, setTagsInput] = useState('')
+  const [selectedAreas, setSelectedAreas] = useState<Area[]>([])
   const [skillsInput, setSkillsInput] = useState('')
 
   if (!open) return null
+
+  const toggleArea = (area: Area) => {
+    setSelectedAreas((prev) =>
+      prev.includes(area) ? prev.filter((a) => a !== area) : [...prev, area]
+    )
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -22,13 +29,13 @@ export default function AddResourceModal({ open, onClose, onAdd }: AddResourceMo
       name: name.trim(),
       url: url.trim() || null,
       image_url: imageUrl.trim() || null,
-      tags: tagsInput.split(',').map((t) => t.trim()).filter(Boolean),
+      areas: selectedAreas,
       skills: skillsInput.split(',').map((s) => s.trim()).filter(Boolean),
     })
     setName('')
     setUrl('')
     setImageUrl('')
-    setTagsInput('')
+    setSelectedAreas([])
     setSkillsInput('')
     onClose()
   }
@@ -49,7 +56,7 @@ export default function AddResourceModal({ open, onClose, onAdd }: AddResourceMo
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Link do curso ou video</label>
+            <label className="block text-sm font-medium mb-1">Link do curso ou vídeo</label>
             <input
               type="url"
               value={url}
@@ -69,13 +76,30 @@ export default function AddResourceModal({ open, onClose, onAdd }: AddResourceMo
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Tags (separadas por vírgula)</label>
-            <input
-              value={tagsInput}
-              onChange={(e) => setTagsInput(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="docker, containers, devops"
-            />
+            <label className="block text-sm font-medium mb-2">Áreas relacionadas</label>
+            <div className="flex flex-wrap gap-2">
+              {AREAS.map((area) => {
+                const selected = selectedAreas.includes(area)
+                return (
+                  <button
+                    key={area}
+                    type="button"
+                    onClick={() => toggleArea(area)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium border-2 transition-all cursor-pointer ${
+                      selected
+                        ? 'text-white border-transparent'
+                        : 'bg-transparent border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-400'
+                    }`}
+                    style={{
+                      backgroundColor: selected ? AREA_COLORS[area] : undefined,
+                      borderColor: selected ? AREA_COLORS[area] : undefined,
+                    }}
+                  >
+                    {area}
+                  </button>
+                )
+              })}
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Skills adquiridas (separadas por vírgula)</label>

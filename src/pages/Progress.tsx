@@ -1,49 +1,8 @@
 import { useEffect, useState } from 'react'
 import { PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer, Tooltip } from 'recharts'
 import { fetchResources } from '../lib/db'
-import type { Resource } from '../types'
-
-const SKILL_TREE = [
-  {
-    category: 'Back-end',
-    keywords: ['back-end', 'backend', 'api', 'rest', 'graphql', 'java', 'node', 'python', 'server', 'spring'],
-  },
-  {
-    category: 'Front-end',
-    keywords: ['front-end', 'frontend', 'react', 'vue', 'angular', 'html', 'css', 'ui', 'ux'],
-  },
-  {
-    category: 'DevOps',
-    keywords: ['devops', 'docker', 'kubernetes', 'deploy', 'ci/cd', 'terraform', 'containers'],
-  },
-  {
-    category: 'Cloud',
-    keywords: ['cloud', 'aws', 'azure', 'gcp', 's3', 'ec2', 'iam', 'serverless'],
-  },
-  {
-    category: 'Data',
-    keywords: ['data', 'dados', 'sql', 'database', 'postgresql', 'pandas', 'analytics', 'ml', 'ai'],
-  },
-  {
-    category: 'Security',
-    keywords: ['security', 'seguranca', 'jwt', 'oauth', 'auth', 'encryption', 'pkce'],
-  },
-]
-
-function normalize(value: string) {
-  return value
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-}
-
-function getResourceCategories(resource: Resource) {
-  const searchable = normalize([resource.name, ...resource.tags, ...resource.skills].join(' '))
-
-  return SKILL_TREE.filter(({ keywords }) =>
-    keywords.some((keyword) => searchable.includes(normalize(keyword)))
-  ).map(({ category }) => category)
-}
+import { AREAS, AREA_COLORS } from '../types'
+import type { Resource, Area } from '../types'
 
 export default function Progress() {
   const [resources, setResources] = useState<Resource[]>([])
@@ -56,20 +15,20 @@ export default function Progress() {
     })
   }, [])
 
-  const completed = resources.filter((resource) => resource.status === 'completed')
-  const counts = Object.fromEntries(SKILL_TREE.map(({ category }) => [category, 0])) as Record<string, number>
+  const completed = resources.filter((r) => r.status === 'completed')
 
-  completed.forEach((resource) => {
-    const categories = getResourceCategories(resource)
-    categories.forEach((category) => {
-      counts[category] += 1
+  const counts = Object.fromEntries(AREAS.map((a) => [a, 0])) as Record<Area, number>
+  completed.forEach((r) => {
+    r.areas.forEach((area) => {
+      if (area in counts) counts[area] += 1
     })
   })
 
   const maxCount = Math.max(...Object.values(counts), 1)
-  const data = SKILL_TREE.map(({ category }) => ({
-    category,
-    recursos: counts[category],
+  const data = AREAS.map((area) => ({
+    category: area,
+    recursos: counts[area],
+    fill: AREA_COLORS[area],
   }))
 
   if (loading) {
@@ -81,7 +40,7 @@ export default function Progress() {
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold">📈 Progresso</h1>
         <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-          Recursos concluídos categorizados por tags, skills e título
+          Recursos concluídos por área
         </p>
       </div>
 
@@ -107,6 +66,23 @@ export default function Progress() {
             </RadarChart>
           </ResponsiveContainer>
         )}
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-3 mt-6">
+        {AREAS.map((area) => (
+          <div
+            key={area}
+            className="text-center p-3 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
+          >
+            <div
+              className="text-2xl font-bold rounded-full w-10 h-10 flex items-center justify-center mx-auto mb-1 text-white"
+              style={{ backgroundColor: AREA_COLORS[area] }}
+            >
+              {counts[area]}
+            </div>
+            <div className="text-xs text-gray-600 dark:text-gray-400">{area}</div>
+          </div>
+        ))}
       </div>
     </div>
   )

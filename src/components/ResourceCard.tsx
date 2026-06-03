@@ -1,4 +1,5 @@
 import type { Resource } from '../types'
+import { AREA_COLORS } from '../types'
 import { getGeneratedResourceImageUrl, getResourceImageUrl } from '../lib/resourceImage'
 
 interface ResourceCardProps {
@@ -43,11 +44,11 @@ export default function ResourceCard({ resource, onToggle, onDelete }: ResourceC
               rel="noreferrer"
               className="mt-1 inline-flex text-xs font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
             >
-              Abrir curso/video
+              Abrir curso/vídeo
             </a>
           )}
         </div>
-        <div className="flex gap-1">
+        <div className="flex gap-1 shrink-0">
           {!isCompleted && (
             <button
               onClick={() => onToggle(resource.id, true)}
@@ -73,14 +74,15 @@ export default function ResourceCard({ resource, onToggle, onDelete }: ResourceC
         </div>
       </div>
 
-      {resource.tags.length > 0 && (
+      {resource.areas.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-2">
-          {resource.tags.map((tag) => (
+          {resource.areas.map((area) => (
             <span
-              key={tag}
-              className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-xs rounded text-gray-600 dark:text-gray-400"
+              key={area}
+              className="px-2 py-0.5 text-xs rounded text-white font-medium"
+              style={{ backgroundColor: AREA_COLORS[area] || '#6b7280' }}
             >
-              {tag}
+              {area}
             </span>
           ))}
         </div>
@@ -93,7 +95,7 @@ export default function ResourceCard({ resource, onToggle, onDelete }: ResourceC
       )}
       {isCompleted && resource.completed_at && (
         <div className="text-xs text-green-600 dark:text-green-400">
-          Concluido em {new Date(resource.completed_at).toLocaleDateString('pt-BR')}
+          Concluído em {new Date(resource.completed_at).toLocaleDateString('pt-BR')}
         </div>
       )}
     </div>
