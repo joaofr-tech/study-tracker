@@ -7,12 +7,18 @@ import type { Resource, Area } from '../types'
 export default function Progress() {
   const [resources, setResources] = useState<Resource[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchResources().then((data) => {
-      setResources(data)
-      setLoading(false)
-    })
+    fetchResources()
+      .then((data) => {
+        setResources(data)
+        setLoading(false)
+      })
+      .catch((e) => {
+        setError(e instanceof Error ? e.message : 'Erro ao carregar progresso')
+        setLoading(false)
+      })
   }, [])
 
   const completed = resources.filter((r) => r.status === 'completed')
@@ -33,6 +39,14 @@ export default function Progress() {
 
   if (loading) {
     return <div className="text-center py-20 text-gray-500">Carregando...</div>
+  }
+
+  if (error) {
+    return <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg text-red-700 dark:text-red-300 text-sm">
+        {error}
+      </div>
+    </div>
   }
 
   return (

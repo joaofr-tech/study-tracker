@@ -11,28 +11,48 @@ export default function Glossary() {
   const [search, setSearch] = useState('')
   const [areaFilter, setAreaFilter] = useState<Area | ''>('')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const load = async () => {
-    const data = await fetchGlossary()
-    setEntries(data)
+    try {
+      const data = await fetchGlossary()
+      setEntries(data)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao carregar glossário')
+    }
     setLoading(false)
   }
 
   useEffect(() => { load() }, [])
 
   const handleAdd = async (data: { term: string; areas: Area[] }) => {
-    await addTerm({ ...data, definition: '', pinned: false })
-    load()
+    try {
+      setError(null)
+      await addTerm({ ...data, definition: '', pinned: false })
+      load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao adicionar termo')
+    }
   }
 
   const handleUpdate = async (id: string, updates: Partial<GlossaryEntry>) => {
-    await updateTerm(id, updates)
-    load()
+    try {
+      setError(null)
+      await updateTerm(id, updates)
+      load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao atualizar termo')
+    }
   }
 
   const handleDelete = async (id: string) => {
-    await deleteTerm(id)
-    load()
+    try {
+      setError(null)
+      await deleteTerm(id)
+      load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao excluir termo')
+    }
   }
 
   const filtered = useMemo(() => {
@@ -112,6 +132,12 @@ export default function Glossary() {
           ))}
         </div>
       </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg text-red-700 dark:text-red-300 text-sm">
+          {error}
+        </div>
+      )}
 
       {loading ? (
         <div className="text-center py-20 text-gray-500">Carregando...</div>

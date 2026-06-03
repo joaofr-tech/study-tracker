@@ -11,5 +11,5 @@ create table if not exists glossary (
 
 alter table glossary enable row level security;
 
-create policy "Allow all for authenticated users" on glossary
-  for all using (auth.role() = 'authenticated');
+create policy "Allow all" on glossary
+  for all using (true);

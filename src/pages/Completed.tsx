@@ -6,23 +6,38 @@ import type { Resource } from '../types'
 export default function Completed() {
   const [resources, setResources] = useState<Resource[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const load = async () => {
-    const data = await fetchResources()
-    setResources(data.filter((r) => r.status === 'completed'))
+    try {
+      const data = await fetchResources()
+      setResources(data.filter((r) => r.status === 'completed'))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao carregar recursos')
+    }
     setLoading(false)
   }
 
   useEffect(() => { load() }, [])
 
-  const handleToggle = async (id: string) => {
-    await toggleResource(id, false)
-    load()
+  const handleToggle = async (id: string, completed: boolean) => {
+    try {
+      setError(null)
+      await toggleResource(id, completed)
+      load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao atualizar recurso')
+    }
   }
 
   const handleDelete = async (id: string) => {
-    await deleteResource(id)
-    load()
+    try {
+      setError(null)
+      await deleteResource(id)
+      load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao excluir recurso')
+    }
   }
 
   return (
@@ -33,6 +48,12 @@ export default function Completed() {
           {resources.length} recurso{resources.length !== 1 ? 's' : ''} concluído{resources.length !== 1 ? 's' : ''}
         </p>
       </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg text-red-700 dark:text-red-300 text-sm">
+          {error}
+        </div>
+      )}
 
       {loading ? (
         <div className="text-center py-20 text-gray-500">Carregando...</div>

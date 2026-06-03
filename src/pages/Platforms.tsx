@@ -7,23 +7,38 @@ export default function Platforms() {
   const [platforms, setPlatforms] = useState<Platform[]>([])
   const [modalOpen, setModalOpen] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const load = async () => {
-    const data = await fetchPlatforms()
-    setPlatforms(data)
+    try {
+      const data = await fetchPlatforms()
+      setPlatforms(data)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao carregar plataformas')
+    }
     setLoading(false)
   }
 
   useEffect(() => { load() }, [])
 
   const handleAdd = async (data: { name: string; url: string; description: string }) => {
-    await addPlatform(data)
-    load()
+    try {
+      setError(null)
+      await addPlatform(data)
+      load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao adicionar plataforma')
+    }
   }
 
   const handleDelete = async (id: string) => {
-    await deletePlatform(id)
-    load()
+    try {
+      setError(null)
+      await deletePlatform(id)
+      load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao excluir plataforma')
+    }
   }
 
   return (
@@ -42,6 +57,12 @@ export default function Platforms() {
           + Nova Plataforma
         </button>
       </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg text-red-700 dark:text-red-300 text-sm">
+          {error}
+        </div>
+      )}
 
       {loading ? (
         <div className="text-center py-20 text-gray-500">Carregando...</div>

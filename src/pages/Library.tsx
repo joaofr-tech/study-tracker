@@ -12,28 +12,48 @@ export default function Library() {
   const [areaFilter, setAreaFilter] = useState<Area | ''>('')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const load = async () => {
-    const data = await fetchResources()
-    setResources(data)
+    try {
+      const data = await fetchResources()
+      setResources(data)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao carregar recursos')
+    }
     setLoading(false)
   }
 
   useEffect(() => { load() }, [])
 
   const handleAdd = async (data: { name: string; url: string | null; image_url: string | null; areas: Area[]; skills: string[] }) => {
-    await addResource({ ...data, status: 'pending' })
-    load()
+    try {
+      setError(null)
+      await addResource({ ...data, status: 'pending' })
+      load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao adicionar recurso')
+    }
   }
 
   const handleToggle = async (id: string, completed: boolean) => {
-    await toggleResource(id, completed)
-    load()
+    try {
+      setError(null)
+      await toggleResource(id, completed)
+      load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao atualizar recurso')
+    }
   }
 
   const handleDelete = async (id: string) => {
-    await deleteResource(id)
-    load()
+    try {
+      setError(null)
+      await deleteResource(id)
+      load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao excluir recurso')
+    }
   }
 
   const filtered = resources.filter((r) => {
@@ -118,6 +138,12 @@ export default function Library() {
           ))}
         </div>
       </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg text-red-700 dark:text-red-300 text-sm">
+          {error}
+        </div>
+      )}
 
       {loading ? (
         <div className="text-center py-20 text-gray-500">Carregando...</div>

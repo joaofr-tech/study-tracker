@@ -40,13 +40,15 @@ function getSupabase() {
 
 export async function fetchResources(): Promise<Resource[]> {
   if (useMock) return [...localResources]
-  const { data } = await getSupabase().from('resources').select('*').order('created_at', { ascending: false })
+  const { data, error } = await getSupabase().from('resources').select('*').order('created_at', { ascending: false })
+  if (error) { throw new Error(error.message) }
   return (data as Resource[]) || []
 }
 
 export async function fetchPlatforms(): Promise<Platform[]> {
   if (useMock) return [...localPlatforms]
-  const { data } = await getSupabase().from('platforms').select('*').order('name')
+  const { data, error } = await getSupabase().from('platforms').select('*').order('name')
+  if (error) { throw new Error(error.message) }
   return (data as Platform[]) || []
 }
 
@@ -62,7 +64,8 @@ export async function addResource(resource: Omit<Resource, 'id' | 'created_at' |
     saveToStorage(STORAGE_KEY_R, localResources)
     return newResource
   }
-  const { data } = await getSupabase().from('resources').insert(resource).select().single()
+  const { data, error } = await getSupabase().from('resources').insert(resource).select().single()
+  if (error) { console.error('addResource:', error.message); throw new Error(error.message) }
   return data as Resource | null
 }
 
@@ -84,7 +87,8 @@ export async function toggleResource(id: string, completed: boolean) {
     status: completed ? 'completed' : 'pending',
     completed_at: completed ? new Date().toISOString() : null,
   }
-  const { data } = await getSupabase().from('resources').update(updates).eq('id', id).select().single()
+  const { data, error } = await getSupabase().from('resources').update(updates).eq('id', id).select().single()
+  if (error) { throw new Error(error.message) }
   return data as Resource | null
 }
 
@@ -94,7 +98,8 @@ export async function deleteResource(id: string) {
     saveToStorage(STORAGE_KEY_R, localResources)
     return
   }
-  await getSupabase().from('resources').delete().eq('id', id)
+  const { error } = await getSupabase().from('resources').delete().eq('id', id)
+  if (error) throw new Error(error.message)
 }
 
 export async function addPlatform(platform: Omit<Platform, 'id'>) {
@@ -104,7 +109,8 @@ export async function addPlatform(platform: Omit<Platform, 'id'>) {
     saveToStorage(STORAGE_KEY_P, localPlatforms)
     return newPlatform
   }
-  const { data } = await getSupabase().from('platforms').insert(platform).select().single()
+  const { data, error } = await getSupabase().from('platforms').insert(platform).select().single()
+  if (error) { console.error('addPlatform:', error.message); throw new Error(error.message) }
   return data as Platform | null
 }
 
@@ -114,12 +120,14 @@ export async function deletePlatform(id: string) {
     saveToStorage(STORAGE_KEY_P, localPlatforms)
     return
   }
-  await getSupabase().from('platforms').delete().eq('id', id)
+  const { error } = await getSupabase().from('platforms').delete().eq('id', id)
+  if (error) throw new Error(error.message)
 }
 
 export async function fetchGlossary(): Promise<GlossaryEntry[]> {
   if (useMock) return [...localGlossary]
-  const { data } = await getSupabase().from('glossary').select('*').order('term', { ascending: true })
+  const { data, error } = await getSupabase().from('glossary').select('*').order('term', { ascending: true })
+  if (error) { throw new Error(error.message) }
   return (data as GlossaryEntry[]) || []
 }
 
@@ -134,7 +142,8 @@ export async function addTerm(entry: Omit<GlossaryEntry, 'id' | 'created_at'>) {
     saveToStorage(STORAGE_KEY_G, localGlossary)
     return newEntry
   }
-  const { data } = await getSupabase().from('glossary').insert(entry).select().single()
+  const { data, error } = await getSupabase().from('glossary').insert(entry).select().single()
+  if (error) { console.error('addTerm:', error.message); throw new Error(error.message) }
   return data as GlossaryEntry | null
 }
 
@@ -144,7 +153,8 @@ export async function updateTerm(id: string, updates: Partial<GlossaryEntry>) {
     saveToStorage(STORAGE_KEY_G, localGlossary)
     return localGlossary.find((e) => e.id === id) || null
   }
-  const { data } = await getSupabase().from('glossary').update(updates).eq('id', id).select().single()
+  const { data, error } = await getSupabase().from('glossary').update(updates).eq('id', id).select().single()
+  if (error) { throw new Error(error.message) }
   return data as GlossaryEntry | null
 }
 
@@ -154,5 +164,6 @@ export async function deleteTerm(id: string) {
     saveToStorage(STORAGE_KEY_G, localGlossary)
     return
   }
-  await getSupabase().from('glossary').delete().eq('id', id)
+  const { error } = await getSupabase().from('glossary').delete().eq('id', id)
+  if (error) throw new Error(error.message)
 }
