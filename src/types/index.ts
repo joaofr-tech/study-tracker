@@ -47,3 +47,37 @@ export interface GlossaryEntry {
   pinned: boolean
   created_at: string
 }
+
+export const IDEA_STATUS = {
+  idea: '💡 Ideia',
+  exploring: '🔬 Explorando',
+  in_progress: '👷 Em progresso',
+  mvp: '✅ MVP pronto',
+  launched: '🚀 Lançado',
+} as const
+
+export type IdeaStatus = keyof typeof IDEA_STATUS
+
+export const COMPLEXITY = [1, 2, 3] as const
+export type Complexity = (typeof COMPLEXITY)[number]
+
+export const COMPLEXITY_LABEL: Record<Complexity, string> = {
+  1: '⭐ Fácil',
+  2: '⭐⭐ Médio',
+  3: '⭐⭐⭐ Difícil',
+}
+
+export interface ProjectIdea {
+  id: string
+  title: string
+  description: string
+  problem?: string | null
+  solution?: string | null
+  technologies?: string[] | null
+  next_step?: string | null
+  status: IdeaStatus
+  complexity: Complexity
+  repo_url?: string | null
+  created_at: string
+  updated_at: string
+}

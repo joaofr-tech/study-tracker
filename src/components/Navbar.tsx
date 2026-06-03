@@ -13,6 +13,7 @@ const navItems = [
   { path: '/platforms', label: 'Plataformas', icon: '🔧' },
   { path: '/completed', label: 'Completo', icon: '✅' },
   { path: '/progress', label: 'Progresso', icon: '📈' },
+  { path: '/ideas', label: 'Ideias', icon: '💡' },
 ]
 
 export default function Navbar({ dark, toggleTheme }: NavbarProps) {

@@ -1,5 +1,5 @@
 import { hasSupabaseConfig, supabase } from './supabase'
-import type { Resource, Platform, GlossaryEntry } from '../types'
+import type { Resource, Platform, GlossaryEntry, ProjectIdea } from '../types'
 
 const useMock = !hasSupabaseConfig
 
@@ -26,6 +26,9 @@ function saveToStorage(key: string, data: unknown) {
 let localResources: Resource[] = loadFromStorage(STORAGE_KEY_R)
 let localPlatforms: Platform[] = loadFromStorage(STORAGE_KEY_P)
 let localGlossary: GlossaryEntry[] = loadFromStorage(STORAGE_KEY_G)
+
+const STORAGE_KEY_I = 'study-tracker-ideas'
+let localIdeas: ProjectIdea[] = loadFromStorage(STORAGE_KEY_I)
 
 function genId() {
   return crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2, 11)
@@ -165,5 +168,52 @@ export async function deleteTerm(id: string) {
     return
   }
   const { error } = await getSupabase().from('glossary').delete().eq('id', id)
+  if (error) throw new Error(error.message)
+}
+
+export async function fetchIdeas(): Promise<ProjectIdea[]> {
+  if (useMock) return [...localIdeas]
+  const { data, error } = await getSupabase().from('project_ideas').select('*').order('created_at', { ascending: false })
+  if (error) { throw new Error(error.message) }
+  return (data as ProjectIdea[]) || []
+}
+
+export async function addIdea(idea: Omit<ProjectIdea, 'id' | 'created_at' | 'updated_at'>) {
+  if (useMock) {
+    const now = new Date().toISOString()
+    const newIdea: ProjectIdea = {
+      ...idea,
+      id: genId(),
+      created_at: now,
+      updated_at: now,
+    }
+    localIdeas = [newIdea, ...localIdeas]
+    saveToStorage(STORAGE_KEY_I, localIdeas)
+    return newIdea
+  }
+  const { data, error } = await getSupabase().from('project_ideas').insert(idea).select().single()
+  if (error) { console.error('addIdea:', error.message); throw new Error(error.message) }
+  return data as ProjectIdea | null
+}
+
+export async function updateIdea(id: string, updates: Partial<ProjectIdea>) {
+  if (useMock) {
+    const now = new Date().toISOString()
+    localIdeas = localIdeas.map((i) => (i.id === id ? { ...i, ...updates, updated_at: now } : i))
+    saveToStorage(STORAGE_KEY_I, localIdeas)
+    return localIdeas.find((i) => i.id === id) || null
+  }
+  const { data, error } = await getSupabase().from('project_ideas').update(updates).eq('id', id).select().single()
+  if (error) { throw new Error(error.message) }
+  return data as ProjectIdea | null
+}
+
+export async function deleteIdea(id: string) {
+  if (useMock) {
+    localIdeas = localIdeas.filter((i) => i.id !== id)
+    saveToStorage(STORAGE_KEY_I, localIdeas)
+    return
+  }
+  const { error } = await getSupabase().from('project_ideas').delete().eq('id', id)
   if (error) throw new Error(error.message)
 }
