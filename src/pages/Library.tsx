@@ -19,8 +19,8 @@ export default function Library() {
 
   useEffect(() => { load() }, [])
 
-  const handleAdd = async (data: { name: string; tags: string[]; skills: string[]; xp: number }) => {
-    await addResource({ ...data, status: 'pending', progress: 0 })
+  const handleAdd = async (data: { name: string; url: string | null; image_url: string | null; tags: string[]; skills: string[] }) => {
+    await addResource({ ...data, status: 'pending' })
     load()
   }
 

@@ -1,4 +1,5 @@
 import type { Resource } from '../types'
+import { getGeneratedResourceImageUrl, getResourceImageUrl } from '../lib/resourceImage'
 
 interface ResourceCardProps {
   resource: Resource
@@ -8,6 +9,7 @@ interface ResourceCardProps {
 
 export default function ResourceCard({ resource, onToggle, onDelete }: ResourceCardProps) {
   const isCompleted = resource.status === 'completed'
+  const imageUrl = getResourceImageUrl(resource)
 
   return (
     <div
@@ -17,10 +19,34 @@ export default function ResourceCard({ resource, onToggle, onDelete }: ResourceC
           : 'border-gray-200 dark:border-gray-800 hover:shadow-md'
       }`}
     >
+      {imageUrl && (
+        <img
+          src={imageUrl}
+          alt={resource.name}
+          onError={(e) => {
+            const fallback = getGeneratedResourceImageUrl(resource)
+            if (e.currentTarget.src !== fallback) e.currentTarget.src = fallback
+          }}
+          className="mb-4 h-36 w-full rounded-lg object-cover bg-gray-100 dark:bg-gray-800"
+        />
+      )}
+
       <div className="flex items-start justify-between mb-3">
-        <h3 className={`font-semibold text-lg ${isCompleted ? 'line-through text-gray-400' : ''}`}>
-          {resource.name}
-        </h3>
+        <div className="min-w-0 pr-3">
+          <h3 className={`font-semibold text-lg break-words ${isCompleted ? 'line-through text-gray-400' : ''}`}>
+            {resource.name}
+          </h3>
+          {resource.url && (
+            <a
+              href={resource.url}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-1 inline-flex text-xs font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+            >
+              Abrir curso/video
+            </a>
+          )}
+        </div>
         <div className="flex gap-1">
           {!isCompleted && (
             <button
@@ -42,23 +68,9 @@ export default function ResourceCard({ resource, onToggle, onDelete }: ResourceC
             onClick={() => onDelete(resource.id)}
             className="px-2 py-1 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors cursor-pointer"
           >
-            ✕
+            x
           </button>
         </div>
-      </div>
-
-      <div className="mb-3">
-        <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all ${
-              isCompleted ? 'bg-green-500' : 'bg-indigo-500'
-            }`}
-            style={{ width: `${resource.progress}%` }}
-          />
-        </div>
-        <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 block">
-          {resource.progress}% • {resource.xp} XP
-        </span>
       </div>
 
       {resource.tags.length > 0 && (
@@ -81,7 +93,7 @@ export default function ResourceCard({ resource, onToggle, onDelete }: ResourceC
       )}
       {isCompleted && resource.completed_at && (
         <div className="text-xs text-green-600 dark:text-green-400">
-          ✅ Concluído em {new Date(resource.completed_at).toLocaleDateString('pt-BR')}
+          Concluido em {new Date(resource.completed_at).toLocaleDateString('pt-BR')}
         </div>
       )}
     </div>
