@@ -67,6 +67,26 @@ export const COMPLEXITY_LABEL: Record<Complexity, string> = {
   3: '⭐⭐⭐ Difícil',
 }
 
+export const SKILL_STATUS = {
+  to_learn: '📝 Quero aprender',
+  learning: '📖 Aprendendo',
+  learned: '✅ Aprendi',
+} as const
+
+export type SkillStatus = keyof typeof SKILL_STATUS
+
+export const SKILL_STATUS_ORDER: SkillStatus[] = ['to_learn', 'learning', 'learned']
+
+export interface Skill {
+  id: string
+  name: string
+  area: Area
+  status: SkillStatus
+  order: number
+  created_at: string
+  updated_at: string
+}
+
 export interface ProjectIdea {
   id: string
   title: string

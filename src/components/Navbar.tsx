@@ -13,6 +13,7 @@ const navItems = [
   { path: '/platforms', label: 'Plataformas', icon: '🔧' },
   { path: '/completed', label: 'Completo', icon: '✅' },
   { path: '/progress', label: 'Progresso', icon: '📈' },
+  { path: '/skills', label: 'Roadmap', icon: '🗺️' },
   { path: '/ideas', label: 'Ideias', icon: '💡' },
 ]
 

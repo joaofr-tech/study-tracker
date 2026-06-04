@@ -1,5 +1,5 @@
 import { hasSupabaseConfig, supabase } from './supabase'
-import type { Resource, Platform, GlossaryEntry, ProjectIdea } from '../types'
+import type { Resource, Platform, GlossaryEntry, ProjectIdea, Skill } from '../types'
 
 const useMock = !hasSupabaseConfig
 
@@ -29,6 +29,9 @@ let localGlossary: GlossaryEntry[] = loadFromStorage(STORAGE_KEY_G)
 
 const STORAGE_KEY_I = 'study-tracker-ideas'
 let localIdeas: ProjectIdea[] = loadFromStorage(STORAGE_KEY_I)
+
+const STORAGE_KEY_S = 'study-tracker-skills'
+let localSkills: Skill[] = loadFromStorage(STORAGE_KEY_S)
 
 function genId() {
   return crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2, 11)
@@ -216,4 +219,66 @@ export async function deleteIdea(id: string) {
   }
   const { error } = await getSupabase().from('project_ideas').delete().eq('id', id)
   if (error) throw new Error(error.message)
+}
+
+export async function fetchSkills(): Promise<Skill[]> {
+  if (useMock) return [...localSkills]
+  const { data, error } = await getSupabase().from('skills').select('*').order('order', { ascending: true })
+  if (error) { throw new Error(error.message) }
+  return (data as Skill[]) || []
+}
+
+export async function addSkill(skill: Omit<Skill, 'id' | 'created_at' | 'updated_at'>) {
+  if (useMock) {
+    const now = new Date().toISOString()
+    const newSkill: Skill = {
+      ...skill,
+      id: genId(),
+      created_at: now,
+      updated_at: now,
+    }
+    localSkills = [...localSkills, newSkill]
+    saveToStorage(STORAGE_KEY_S, localSkills)
+    return newSkill
+  }
+  const { data, error } = await getSupabase().from('skills').insert(skill).select().single()
+  if (error) { console.error('addSkill:', error.message); throw new Error(error.message) }
+  return data as Skill | null
+}
+
+export async function updateSkill(id: string, updates: Partial<Skill>) {
+  if (useMock) {
+    const now = new Date().toISOString()
+    localSkills = localSkills.map((s) => (s.id === id ? { ...s, ...updates, updated_at: now } : s))
+    saveToStorage(STORAGE_KEY_S, localSkills)
+    return localSkills.find((s) => s.id === id) || null
+  }
+  const { data, error } = await getSupabase().from('skills').update(updates).eq('id', id).select().single()
+  if (error) { throw new Error(error.message) }
+  return data as Skill | null
+}
+
+export async function deleteSkill(id: string) {
+  if (useMock) {
+    localSkills = localSkills.filter((s) => s.id !== id)
+    saveToStorage(STORAGE_KEY_S, localSkills)
+    return
+  }
+  const { error } = await getSupabase().from('skills').delete().eq('id', id)
+  if (error) throw new Error(error.message)
+}
+
+export async function reorderSkills(skills: { id: string; order: number }[]) {
+  if (useMock) {
+    localSkills = localSkills.map((s) => {
+      const found = skills.find((u) => u.id === s.id)
+      return found ? { ...s, order: found.order, updated_at: new Date().toISOString() } : s
+    })
+    saveToStorage(STORAGE_KEY_S, localSkills)
+    return
+  }
+  for (const { id, order } of skills) {
+    const { error } = await getSupabase().from('skills').update({ order }).eq('id', id)
+    if (error) throw new Error(error.message)
+  }
 }

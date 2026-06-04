@@ -6,6 +6,7 @@ import Platforms from './pages/Platforms'
 import Completed from './pages/Completed'
 import Progress from './pages/Progress'
 import Ideas from './pages/Ideas'
+import Skills from './pages/Skills'
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/completed" element={<Completed />} />
         <Route path="/progress" element={<Progress />} />
         <Route path="/ideas" element={<Ideas />} />
+        <Route path="/skills" element={<Skills />} />
       </Routes>
     </Layout>
   )
